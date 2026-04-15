@@ -1,8 +1,8 @@
 # Experiment Report: Data Quality Impact on AI Agent
 
 **Student ID:** AI20K-XXXX
-**Name:** (Dien ten cua ban)
-**Date:** (Dien ngay thuc hien)
+**Name:** (Trần Thị Kim Ngân)
+**Date:** (4/15/2026)
 
 ---
 
@@ -12,8 +12,8 @@ Chay `agent_simulation.py` voi 2 bo du lieu va ghi lai ket qua:
 
 | Scenario | Agent Response | Accuracy (1-10) | Notes |
 |----------|----------------|-----------------|-------|
-| Clean Data (`processed_data.csv`) | (Ghi cau tra loi cua Agent) | | |
-| Garbage Data (`garbage_data.csv`) | (Ghi cau tra loi cua Agent) | | |
+| Clean Data (`processed_data.csv`) | Agent: Based on my data, the best choice is Laptop at $1200. | 9 | Dữ liệu sạch, nhất quán, có category `Electronics` và giá hợp lệ. |
+| Garbage Data (`garbage_data.csv`) | Agent: Based on my data, the best choice is Nuclear Reactor at $999999. | 2 | Dữ liệu nhiễu, outlier và giá trị sai định dạng làm agent chọn sai. |
 
 ---
 
@@ -21,15 +21,19 @@ Chay `agent_simulation.py` voi 2 bo du lieu va ghi lai ket qua:
 
 ### Tai sao Agent tra loi sai khi dung Garbage Data?
 
-(Viet nhan xet cua ban o day — it nhat 50 tu)
+Trong `garbage_data.csv`, agent vẫn dùng cùng truy vấn: "What is the best electronic product?" nhưng dữ liệu đầu vào bị lỗi.
 
-(Hay phan tich cac van de nhu Duplicate IDs, wrong data types, outliers, null values
-va giai thich tai sao chung anh huong den ket qua cua Agent.)
+- Duplicate IDs: có hai bản ghi cùng `id=1`, làm giảm độ tin cậy của bảng dữ liệu.
+- Wrong data types: giá trị `price` là `ten dollars` không thể chuyển thành số, gây lỗi nếu có xử lý nghiêm túc.
+- Outliers: bản ghi `Nuclear Reactor` có giá `999999` là ngoại lai quá lớn, khiến thuật toán chọn giá cao nhất mặc dù không thực tế.
+- Null values/missing fields: có một mục `Ghost Item` thiếu `category`, khiến lọc theo `electronics` có thể bị sai nếu không kiểm soát tốt.
+
+Do hàm `simulate_agent_response()` chỉ đơn giản chọn sản phẩm điện tử có `price` lớn nhất, nên dữ liệu garbage đã khiến agent trả về `Nuclear Reactor` là lựa chọn "tốt nhất" theo giá. Đây không phải câu trả lời hợp lý, mà là kết quả của dữ liệu sai, không phải do prompt.
+
+Vì vậy, agent sai không phải vì câu hỏi, mà vì chất lượng dữ liệu đầu vào quá kém. Dữ liệu không sạch dẫn đến output sai ngay cả khi prompt rõ ràng và cố định.
 
 ---
 
 ## 3. Ket luan
 
-**Quality Data > Quality Prompt?** (Dong y hay khong? Giai thich ngan gon.)
-
-(Viet ket luan cua ban o day)
+**Quality Data > Quality Prompt?** Prompt tốt giúp chỉ dẫn agent, nhưng nếu dữ liệu đầu vào nhiễu, sai định dạng, hoặc chứa ngoại lai thì agent vẫn trả lời sai. Chất lượng dữ liệu là yếu tố quan trọng hơn để đảm bảo kết quả đúng và đáng tin cậy.
